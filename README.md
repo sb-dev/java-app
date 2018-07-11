@@ -22,9 +22,10 @@ mvn test
 
 The program allows to run actions on a basket.
 
-__List of action__:
+__List of actions__:
 
-* __PriceBasket__: Accepts a list of items (duplicates allowed) in the basket and outputs the subtotal, the special offer discounts and the final price.
+* __PriceBasket__: Accepts a list of items (duplicates allowed) in the basket and outputs the subtotal, 
+the special offer discounts and the final price (available items: Apple, Bread, Milk and Soup).
 
 ```
 java -jar target/coding-assignment-1.0-SNAPSHOT.jar <action> [items...]

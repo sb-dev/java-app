@@ -52,9 +52,8 @@ public class Basket {
         breadDiscount.put("discountPercentage", "50.00");
         breadDiscount.put("targetItem", "bread");
 
-        availableDiscounts.add(appleDiscount);
-        availableDiscounts.add(breadDiscount);
-
+        this.availableDiscounts.add(appleDiscount);
+        this.availableDiscounts.add(breadDiscount);
     }
 
     /**
