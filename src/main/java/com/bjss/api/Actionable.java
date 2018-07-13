@@ -1,4 +1,5 @@
 package com.bjss.api;
 
-public class Actionable {
+public interface Actionable {
+    String execute(String[] parameters);
 }
