@@ -11,9 +11,11 @@ public class Program {
     private String[] parameters;
 
     public Program(String... args) {
-        this.action = args[0];
-        this.parameters = new String[args.length - 1];
-        System.arraycopy(args, 1, parameters, 0, args.length - 1);
+        if(args.length > 0 ) {
+            this.action = args[0];
+            this.parameters = new String[args.length - 1];
+            System.arraycopy(args, 1, parameters, 0, args.length - 1);
+        }
     }
 
     public Program command(String action) {
