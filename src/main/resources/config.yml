@@ -1,2 +1,22 @@
-apple:
+items:
+  - name: "apple"
     price: "1.00"
+    # Discount
+    startDate: "2018 07 09"
+    endDate: "2018 07 16"
+    discountQuantityCondition: "1"
+    discountItemCondition: "apple"
+    discountPercentage: "10.00"
+
+  - name: "bread"
+    price: "0.80"
+    # Discount
+    discountQuantityCondition: "1"
+    discountItemCondition: "soup"
+    discountPercentage: "50.00"
+
+  - name: "milk"
+    price: "1.30"
+
+  - name: "soup"
+    price: "0.65"
