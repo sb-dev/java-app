@@ -10,12 +10,18 @@ public class Program {
     private String action;
     private String[] parameters;
 
+    private String output;
+
     public Program(String... args) {
         if(args.length > 0 ) {
             this.action = args[0];
             this.parameters = new String[args.length - 1];
             System.arraycopy(args, 1, parameters, 0, args.length - 1);
         }
+    }
+
+    public String getOutput() {
+        return this.output;
     }
 
     public Program command(String action) {
@@ -30,8 +36,8 @@ public class Program {
 
     public void action(Actionable actionable) {
         if(this.commandAction.equalsIgnoreCase(this.action) || this.commandAlias.equalsIgnoreCase(this.action)) {
-            String output = actionable.execute(this.parameters);
-            System.out.println(output);
+            this.output = actionable.execute(this.parameters);
+            this.displayOutput();
         } else {
             this.resetCommand();
         }
@@ -39,7 +45,8 @@ public class Program {
 
     public void exit() {
         if("".equalsIgnoreCase(this.commandAction)) {
-            System.out.println("Action no recognised");
+            this.output = "Action no recognised";
+            this.displayOutput();
         }
 
         System.exit(0);
@@ -48,5 +55,10 @@ public class Program {
     private void resetCommand() {
         this.commandAction = "";
         this.commandAlias = "";
+        this.output = "";
+    }
+
+    private void displayOutput() {
+        System.out.println(this.output);
     }
 }
