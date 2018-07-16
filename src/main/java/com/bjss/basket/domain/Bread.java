@@ -11,4 +11,8 @@ public class Bread extends Item {
     public Bread(String name) {
         super(name, "0.80");
     }
+    public Bread(String name, int quantity) {
+        super(name, "0.80", quantity);
+    }
+
 }

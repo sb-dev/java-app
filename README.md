@@ -30,3 +30,5 @@ the special offer discounts and the final price (available items: Apple, Bread, 
 ```
 java -jar target/coding-assignment-1.0-SNAPSHOT.jar <action> [items...]
 ```
+
+The item prices and discounts can be updated by changing the configuration file (src/main/resources/config.yml).

@@ -33,6 +33,13 @@ public class ItemFactoryTest {
     }
 
     @Test
+    public void testItemFactoryWithDifferentCasingAndPlural() {
+        ItemFactory itemFactory = new ItemFactory();
+        Item item = itemFactory.getItem("aPPles");
+        assertTrue("Expect Apple instance", item instanceof Apple);
+    }
+
+    @Test
     public void testItemFactoryWithApple() {
         ItemFactory itemFactory = new ItemFactory();
         Item item = itemFactory.getItem("apple");

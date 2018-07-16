@@ -3,6 +3,8 @@ package com.bjss.basket;
 import com.bjss.basket.domain.Basket;
 import com.bjss.basket.api.Item;
 
+import com.bjss.basket.domain.Discount;
+import com.bjss.basket.support.Configuration;
 import org.junit.Test;
 
 import java.math.BigDecimal;
@@ -59,7 +61,7 @@ public class BasketTest {
     }
 
     @Test
-    public void testPopulateItemsWithMultipleItemsIncludingDucplicates() {
+    public void testPopulateItemsWithMultipleItemsIncludingDuplicates() {
         String[] itemParameters = {"apple", "soup", "bread", "milk", "bread", "soup"};
         Basket basket = new Basket(itemParameters);
 
@@ -182,116 +184,24 @@ public class BasketTest {
         assertTrue("Expected price basket result", result.contains("Total: £5.60"));
     }
 
-    @Test
-    public void testGetDiscount10OnAppleWithNoAppleItem() {
-        String[] itemParameters = {"soup"};
-        Basket basket = new Basket(itemParameters);
-
-        assertEquals("Expected price basket result", new BigDecimal("0.00"), basket.getDiscount(1, "apple", 10.00, "apple"));
-    }
-
-    @Test
-    public void testGetDiscount10OnAppleWithOneAppleItem() {
-        String[] itemParameters = {"apple"};
-        Basket basket = new Basket(itemParameters);
-
-        assertEquals("Expected price basket result", new BigDecimal("0.10"), basket.getDiscount(1, "apple", 10.00, "apple"));
-    }
-
-    @Test
-    public void testGetDiscount10OnAppleWithTwoAppleItems() {
-        String[] itemParameters = {"apple","apple"};
-        Basket basket = new Basket(itemParameters);
-
-        assertEquals("Expected price basket result", new BigDecimal("0.20"), basket.getDiscount(1, "apple", 10.00, "apple"));
-    }
-
-    @Test
-    public void testGetDiscountTwoSoup50OnBreadWithOneBreadItem() {
-        String[] itemParameters = {"soup", "soup", "bread"};
-        Basket basket = new Basket(itemParameters);
-
-        assertEquals("Expected price basket result", new BigDecimal("0.40"), basket.getDiscount(2, "soup", 50.00, "bread"));
-    }
-
-    @Test
-    public void testGetDiscounttwoSoup50OnBreadWithTwoBreadItems() {
-        String[] itemParameters = {"soup", "soup", "bread", "bread"};
-        Basket basket = new Basket(itemParameters);
-
-        assertEquals("Expected price basket result", new BigDecimal("0.40"), basket.getDiscount(2, "soup", 50.00, "bread"));
-    }
-
-    @Test
-    public void testGetDiscountTwoSoup50OnBreadWithTwoBreadItemAndFourSoupItems() {
-        String[] itemParameters = {"soup", "soup", "soup", "soup", "bread", "bread"};
-        Basket basket = new Basket(itemParameters);
-
-        assertEquals("Expected price basket result", new BigDecimal("0.80"), basket.getDiscount(2, "soup", 50.00, "bread"));
-    }
-
-    @Test
-    public void testGetDiscountTwoSoup50OnBreadWithTwoBreadItemAndNoSoupItem() {
-        String[] itemParameters = {"bread", "bread"};
-        Basket basket = new Basket(itemParameters);
-
-        assertEquals("Expected price basket result", new BigDecimal("0.00"), basket.getDiscount(2, "soup", 50.00, "bread"));
-    }
-
-    public List<Map<String,String>> getDiscounts() {
-        List<Map<String,String>> availableDiscounts =  new ArrayList<>();
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy MM dd");
-
+    public Configuration getDiscounts() {
         LocalDate startDate = LocalDate.now().minusDays(1);
         LocalDate endDate = LocalDate.now().plusDays(1);
 
-        Map<String,String> appleDiscount = new HashMap<>();
-        appleDiscount.put("startDate", startDate.format(formatter));
-        appleDiscount.put("endDate", endDate.format(formatter));
-        appleDiscount.put("discountQuantityCondition", "1");
-        appleDiscount.put("discountItemCondition", "apple");
-        appleDiscount.put("discountPercentage", "10.00");
-        appleDiscount.put("targetItem", "apple");
-
-        Map<String,String> breadDiscount = new HashMap<>();
-        breadDiscount.put("discountQuantityCondition", "2");
-        breadDiscount.put("discountItemCondition", "soup");
-        breadDiscount.put("discountPercentage", "50.00");
-        breadDiscount.put("targetItem", "bread");
-
-        availableDiscounts.add(appleDiscount);
-        availableDiscounts.add(breadDiscount);
-
-        return availableDiscounts;
+        Configuration config = new Configuration();
+        config.getDiscounts().add(new Discount("bread", 2, "soup", 50.00));
+        config.getDiscounts().add(new Discount("apple", 1, "apple", 10.00, startDate, endDate));
+        return config;
     }
 
-    public List<Map<String,String>> getExpiredDiscounts() {
-        List<Map<String,String>> availableDiscounts =  new ArrayList<>();
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy MM dd");
-
+    public Configuration getExpiredDiscounts() {
         LocalDate startDate = LocalDate.now().minusDays(2);
         LocalDate endDate = LocalDate.now().minusDays(1);
 
-        Map<String,String> appleDiscount = new HashMap<>();
-        appleDiscount.put("startDate", startDate.format(formatter));
-        appleDiscount.put("endDate", endDate.format(formatter));
-        appleDiscount.put("discountQuantityCondition", "1");
-        appleDiscount.put("discountItemCondition", "apple");
-        appleDiscount.put("discountPercentage", "10.00");
-        appleDiscount.put("targetItem", "apple");
-
-        Map<String,String> breadDiscount = new HashMap<>();
-        breadDiscount.put("discountQuantityCondition", "2");
-        breadDiscount.put("discountItemCondition", "soup");
-        breadDiscount.put("discountPercentage", "50.00");
-        breadDiscount.put("targetItem", "bread");
-
-        availableDiscounts.add(appleDiscount);
-        availableDiscounts.add(breadDiscount);
-
-        return availableDiscounts;
+        Configuration config = new Configuration();
+        config.getDiscounts().add(new Discount("bread", 2, "soup", 50.00));
+        config.getDiscounts().add(new Discount("apple", 1, "apple", 10.00, startDate, endDate));
+        return config;
     }
 
 }

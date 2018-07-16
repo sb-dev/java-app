@@ -24,6 +24,18 @@ public abstract class Item implements Priceable {
     }
 
     /**
+     *
+     * @param name Item's name
+     * @param price Item's price
+     * @param quantity Item's quantity
+     */
+    public Item(String name, String price, int quantity) {
+        this.name = name;
+        this.price = new BigDecimal(price);
+        this.quantity = quantity;
+    }
+
+    /**
      * Get Item's name
      * @return String
      */
@@ -37,6 +49,14 @@ public abstract class Item implements Priceable {
      */
     public BigDecimal getPrice() {
         return this.price;
+    }
+
+    /**
+     * Set Item's price
+     * @param price
+     */
+    public void setPrice(String price) {
+        this.price = new BigDecimal(price);
     }
 
     /**
@@ -62,6 +82,12 @@ public abstract class Item implements Priceable {
         return this.quantity;
     }
 
+    /**
+     * Get item's discount value
+     *
+     * @param percentage Discount value in percentage
+     * @return BigDecimal discount value
+     */
     public BigDecimal applyDiscount(double percentage) {
         return this.price.multiply(new BigDecimal(percentage/100).setScale(2, RoundingMode.HALF_UP)).setScale(2, RoundingMode.HALF_UP);
     }

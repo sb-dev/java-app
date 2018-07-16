@@ -1,6 +1,7 @@
 package com.bjss.basket.domain;
 
 import com.bjss.basket.api.Item;
+import com.bjss.basket.support.Configuration;
 import com.bjss.basket.support.ItemFactory;
 import com.bjss.basket.support.PriceUtil;
 
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Represents a basket which can contain items for sales
@@ -21,12 +23,10 @@ public class Basket {
     private Map<String,Item> itemMap;
     private List<String> discounts;
 
-    private List<Map<String,String>> availableDiscounts;
+    private List<Discount> availableDiscounts;
 
     private BigDecimal total = new BigDecimal("0.00");
     private BigDecimal subTotal = new BigDecimal("0.00");
-
-    private DateTimeFormatter formatter;
 
     /**
      * Default constructor: initialising all Collections
@@ -34,26 +34,7 @@ public class Basket {
     public Basket() {
         this.itemMap = new HashMap<>();
         this.discounts = new ArrayList<>();
-
-        this.availableDiscounts =  new ArrayList<>();
-
-        this.formatter = DateTimeFormatter.ofPattern("yyyy MM dd");
-        Map<String,String> appleDiscount = new HashMap<>();
-        appleDiscount.put("startDate", "2018 07 09");
-        appleDiscount.put("endDate", "2018 07 16");
-        appleDiscount.put("discountQuantityCondition", "1");
-        appleDiscount.put("discountItemCondition", "apple");
-        appleDiscount.put("discountPercentage", "10.00");
-        appleDiscount.put("targetItem", "apple");
-
-        Map<String,String> breadDiscount = new HashMap<>();
-        breadDiscount.put("discountQuantityCondition", "2");
-        breadDiscount.put("discountItemCondition", "soup");
-        breadDiscount.put("discountPercentage", "50.00");
-        breadDiscount.put("targetItem", "bread");
-
-        this.availableDiscounts.add(appleDiscount);
-        this.availableDiscounts.add(breadDiscount);
+        this.availableDiscounts = new ArrayList<>();
     }
 
     /**
@@ -70,11 +51,20 @@ public class Basket {
      * Create a Basket object, add items to it and available discount
      *
      * @param items array of String items
-     * @param availableDiscounts available discount
+     * @param config contain item prices and available discounts
      */
-    public Basket(String[] items, List<Map<String,String>> availableDiscounts) {
+    public Basket(String[] items, Configuration config) {
         this(items);
-        this.availableDiscounts = availableDiscounts;
+        this.availableDiscounts = config.getDiscounts();
+
+        if(config.getItems() != null) {
+            config.getItems().forEach(item -> {
+                String itemName = item.get("name");
+                if(itemMap.containsKey(itemName)){
+                    itemMap.get(itemName).setPrice(item.get("price"));
+                }
+            });
+        }
     }
 
     /**
@@ -108,72 +98,12 @@ public class Basket {
         }
 
         BigDecimal discountValue = new BigDecimal("0.00");
-        for(Map<String, String> discountItem: this.availableDiscounts) {
-
-
-            if (discountItem.containsKey("startDate") && discountItem.containsKey("endDate")) {
-                LocalDate startDate = LocalDate.parse(discountItem.get("startDate"), formatter);
-                LocalDate endDate = LocalDate.parse(discountItem.get("endDate"), formatter);
-
-                if(LocalDate.now().isAfter(startDate) && LocalDate.now().isBefore(endDate)) {
-                    discountValue = discountValue.add(this.getDiscount(
-                            Integer.valueOf(discountItem.get("discountQuantityCondition")),
-                            discountItem.get("discountItemCondition"),
-                            Double.valueOf(discountItem.get("discountPercentage")),
-                            discountItem.get("targetItem")
-                    ));
-                }
-            } else {
-                discountValue = discountValue.add(this.getDiscount(
-                        Integer.valueOf(discountItem.get("discountQuantityCondition")),
-                        discountItem.get("discountItemCondition"),
-                        Double.valueOf(discountItem.get("discountPercentage")),
-                        discountItem.get("targetItem")
-                ));
-            }
+        for (Discount discount : this.availableDiscounts) {
+            discountValue = discountValue.add(discount.getDiscountValue(this.itemMap, this.discounts));
         }
-
         this.total = subTotal.subtract(discountValue);
 
         return this.getReceipt();
-    }
-
-    /**
-     * Get total discount for an item
-     *
-     * @param discountQuantityCondition
-     * @param discountItemCondition
-     * @param discountPercentage
-     * @param targetItem
-     * @return total discount for an item
-     */
-    public BigDecimal getDiscount(int discountQuantityCondition, String discountItemCondition, double discountPercentage, String targetItem) {
-        BigDecimal discountValue = new BigDecimal("0.00");
-
-        if(!this.itemMap.containsKey(targetItem) || !this.itemMap.containsKey(discountItemCondition)) {
-            return discountValue;
-        }
-
-        if(this.itemMap.get(targetItem).getQuantity() == 0 || this.itemMap.get(discountItemCondition).getQuantity() == 0) {
-            return discountValue;
-        }
-
-        String message = "{0} {1} off: -{2} \n";
-        MessageFormat mf = new MessageFormat(message);
-
-        int discountItemConditionCount = this.itemMap.get(discountItemCondition).getQuantity();
-        int discountsAvailableToApply = discountItemConditionCount >= discountQuantityCondition ? (discountItemConditionCount/discountQuantityCondition): 0;
-
-        int discountsToApply = this.itemMap.get(targetItem).getQuantity() < discountsAvailableToApply ? this.itemMap.get(targetItem).getQuantity() : discountsAvailableToApply;
-        BigDecimal itemDiscountValue = this.itemMap.get(targetItem).applyDiscount(discountPercentage);
-        for(int i = 1; i <= discountsToApply; i++) {
-            discountValue = discountValue.add(itemDiscountValue);
-
-            String discountMessage = mf.format(new Object[] {this.capitalize(targetItem), PriceUtil.displayPercentageValue(discountPercentage), PriceUtil.displayValue(itemDiscountValue)});
-            discounts.add(discountMessage);
-        }
-
-        return discountValue;
     }
 
     /**
@@ -227,14 +157,5 @@ public class Basket {
         }
 
         return discountSummary;
-    }
-
-    /**
-     * Capitalize String
-     * @param input
-     * @return Capitalized String
-     */
-    private String capitalize(String input) {
-        return input.substring(0, 1).toUpperCase() + input.substring(1);
     }
 }

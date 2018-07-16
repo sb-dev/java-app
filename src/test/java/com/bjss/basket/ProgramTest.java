@@ -1,6 +1,6 @@
 package com.bjss.basket;
 
-import com.bjss.basket.domain.Basket;
+import com.bjss.basket.support.Configuration;
 import com.bjss.support.Program;
 
 import org.junit.Test;
@@ -13,11 +13,9 @@ public class ProgramTest {
 
         program
             .command("Command")
-            .action((String[] parameters) -> {
-                return "Test output";
-            });
+            .action((Configuration config, String[] parameters) -> "Test output");
 
-            assertEquals("Should have expected empty program output", "", program.getOutput());
+        assertEquals("Should have expected empty program output", "", program.getOutput());
     }
 
     @Test
@@ -26,9 +24,7 @@ public class ProgramTest {
 
         program
             .command("Command")
-            .action((String[] parameters) -> {
-                return "Test output";
-            });
+            .action((Configuration config, String[] parameters) -> "Test output");
 
         assertEquals("Should have expected program output", "Test output", program.getOutput());
     }
@@ -39,15 +35,37 @@ public class ProgramTest {
 
         program
             .command("Command1")
-            .action((String[] parameters) -> {
-                return "Test output 1";
-            });
+            .action((Configuration config, String[] parameters) -> "Test output 1");
 
         program
             .command("Command2")
-            .action((String[] parameters) -> {
-                return "Test output 2";
-            });
+            .action((Configuration config, String[] parameters) -> "Test output 2");
+
+        assertEquals("Should have expected program output", "Test output 2", program.getOutput());
+    }
+
+    @Test
+    public void testProgramWithAlias() {
+        Program program = new Program("Alias");
+
+        program
+                .command("Alias")
+                .action((Configuration config, String[] parameters) -> "Test output");
+
+        assertEquals("Should have expected program output", "Test output", program.getOutput());
+    }
+
+    @Test
+    public void testProgramWithAliasAndTwoActions() {
+        Program program = new Program("Alias2");
+
+        program
+                .command("Alias1")
+                .action((Configuration config, String[] parameters) -> "Test output 1");
+
+        program
+                .command("Alias2")
+                .action((Configuration config, String[] parameters) -> "Test output 2");
 
         assertEquals("Should have expected program output", "Test output 2", program.getOutput());
     }

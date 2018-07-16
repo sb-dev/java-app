@@ -22,7 +22,7 @@ public class ItemFactory {
             return null;
         }
 
-        if(itemName.equalsIgnoreCase("APPLE")){
+        if(itemName.equalsIgnoreCase("APPLE") || itemName.equalsIgnoreCase("APPLES")){
             return new Apple(itemName);
         } else if(itemName.equalsIgnoreCase("BREAD")){
             return new Bread(itemName);
